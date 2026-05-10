@@ -12,46 +12,73 @@ export default function App() {
 
   const [code, setCode] = useState({
     html: "<h1>Write, edit and run HTML, CSS and JavaScript code online.</h1>",
-    css: "h1 { color: red; text-align:center; }",
-    js: "console.log('Hi');",
+    css: "h1 { color: #3b82f6; text-align: center; font-family: sans-serif; transition: all 0.5s; }\nh1:hover { transform: scale(1.1); color: #6366f1; }",
+    js: "console.log('Welcome to CodeCompiler! 🚀');",
   });
+
+  const [displayCode, setDisplayCode] = useState(code);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const updateCode = (newCode) => {
+    setCode((prev) => ({ ...prev, ...newCode }));
+  };
 
   return (
     <div
-      className={`h-screen flex flex-col transition-all duration-700 ease-in-out ${
-        theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-100 text-black"
+      className={`h-screen flex flex-col transition-all duration-500 ease-in-out ${
+        theme === "dark" ? "bg-[#0f172a] text-white" : "bg-gray-50 text-gray-900"
       }`}
     >
       {/* Navbar */}
-      <Navbar />
+      <Navbar toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
 
       {/* Main Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-3 flex-grow transition-all duration-700">
-        {/* Sidebar */}
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* Mobile Overlay */}
+        {isSidebarOpen && (
+          <div 
+            className="fixed inset-0 bg-black/50 z-30 md:hidden backdrop-blur-sm"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+
+        {/* Sidebar - Drawer on mobile, fixed width on desktop */}
         <div
-          className={`overflow-y-auto border-r ${
+          className={`absolute md:relative z-40 h-full w-80 overflow-y-auto border-r transition-transform duration-300 ease-in-out ${
+            isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+          } ${
             theme === "dark"
-              ? "bg-gray-800 border-gray-700"
-              : "bg-white border-gray-300"
+              ? "bg-gray-900 border-gray-800"
+              : "bg-white border-gray-200"
           }`}
         >
-          <Sidebar theme={theme} />
+          <Sidebar theme={theme} updateCode={updateCode} />
         </div>
 
-        {/* Code Editor */}
-        <div
-          className={`border-r ${
-            theme === "dark"
-              ? "bg-gray-900 border-gray-700"
-              : "bg-gray-50 border-gray-300"
-          }`}
-        >
-          <CodeEditor theme={theme} onRun={setCode} />
-        </div>
+        {/* Editor and Preview Split */}
+        <div className="flex-1 flex flex-col md:flex-row overflow-hidden w-full">
+          {/* Code Editor */}
+          <div
+            className={`flex-1 md:w-1/2 border-b md:border-b-0 md:border-r transition-all duration-500 ${
+              theme === "dark"
+                ? "bg-gray-900 border-gray-800"
+                : "bg-white border-gray-200"
+            }`}
+          >
+            <CodeEditor 
+              theme={theme} 
+              code={code} 
+              updateCode={updateCode} 
+              onRun={setDisplayCode} 
+            />
+          </div>
 
-        {/* Preview */}
-        <div className={`${theme === "dark" ? "bg-gray-950" : "bg-white"}`}>
-          <Preview code={code} theme={theme} />
+          {/* Preview */}
+          <div className={`flex-1 md:w-1/2 transition-all duration-500 ${
+            theme === "dark" ? "bg-[#020617]" : "bg-white"
+          }`}>
+            <Preview code={displayCode} theme={theme} />
+          </div>
         </div>
       </div>
 
@@ -60,3 +87,6 @@ export default function App() {
     </div>
   );
 }
+
+
+
